@@ -1,41 +1,37 @@
+require("dotenv").config();
+
 const express = require("express");
 const app = express();
-const PORT = 8000;
+const PORT = process.env.PORT;
 
 const mongoose = require("mongoose");
-mongoose.connect("mongodb://127.0.0.1:27017/mindloom")
-    .then(() => {
-        console.log("MongoDB Connected");
-    })
-    .catch((error) => {
-        console.log("MongoDB Error:", error);
-    });
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => {
+    console.log("MongoDB Connected");
+  })
+  .catch((error) => {
+    console.log("MongoDB Error:", error);
+  });
 
-    
-const journalRoutes =
-    require("./routes/journalRoutes");
+const journalRoutes = require("./routes/journalRoutes");
 
 app.use(express.json());
 
-app.use('/api/journals', journalRoutes);
-
+app.use("/api/journals", journalRoutes);
 
 // Backend check
-app.get('/', (req, res) => {
-    return res.send("Mindloom backend running");
+app.get("/", (req, res) => {
+  return res.send("Mindloom backend running");
 });
-
 
 // Health check
-app.get('/health', (req, res) => {
-    return res.json({
-        status: "OK"
-    });
+app.get("/health", (req, res) => {
+  return res.json({
+    status: "OK",
+  });
 });
 
-
 app.listen(PORT, () => {
-    console.log(
-        `Server running on ${PORT}`
-    );
+  console.log(`Server running on ${PORT}`);
 });

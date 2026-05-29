@@ -3,10 +3,17 @@ const Journal = require("../models/Journal");
 async function getAllJournals(req, res) {
   try {
     const journals = await Journal.find();
-    return res.json(journals);
+
+    return res.status(200).json({
+      success: true,
+      count: journals.length,
+      data: journals,
+    });
   } catch (error) {
     return res.status(500).json({
-      error: "Failed to fetch journals",
+      success: false,
+      message: "Unable to fetch journals",
+      error: error.message,
     });
   }
 }
@@ -19,50 +26,73 @@ async function getJournalById(req, res) {
 
     if (!journal) {
       return res.status(404).json({
-        error: "No Journal Found",
+        success: false,
+        message: "Journal not found",
       });
     }
 
-    return res.json(journal);
+    return res.status(200).json({
+      success: true,
+      data: journal,
+    });
   } catch (error) {
     return res.status(500).json({
-      error: "Failed to fetch journal",
+      success: false,
+      message: "Unable to fetch journal",
+      error: error.message,
     });
   }
 }
 
 async function createJournal(req, res) {
   try {
-    const body = req.body;
+    const { title, mood, content } = req.body;
 
     const newJournal = await Journal.create({
-      title: body.title,
-      mood: body.mood,
-      content: body.content,
+      title,
+      mood,
+      content,
     });
 
-    return res.status(201).json(newJournal);
+    return res.status(201).json({
+      success: true,
+      message: "Journal created successfully",
+      data: newJournal,
+    });
   } catch (error) {
     return res.status(500).json({
-      error: "Failed to create journal",
+      success: false,
+      message: error.message,
     });
   }
 }
 
 async function updateJournal(req, res) {
   try {
-    const patchId = req.params.id;
+    const id = req.params.id;
 
-    const journal = await Journal.findByIdAndUpdate(patchId, req.body, {
+    const journal = await Journal.findByIdAndUpdate(id, req.body, {
       new: true,
+      runValidators: true,
     });
+
     if (!journal) {
-      return res.status(404).json({ error: "Journal not found" });
+      return res.status(404).json({
+        success: false,
+        message: "Journal not found",
+      });
     }
-    return res.status(200).json(journal);
+
+    return res.status(200).json({
+      success: true,
+      message: "Journal updated successfully",
+      data: journal,
+    });
   } catch (error) {
     return res.status(500).json({
-      error: "Failed to update journal",
+      success: false,
+      message: "Unable to update journal",
+      error: error.message,
     });
   }
 }
@@ -75,20 +105,25 @@ async function deleteJournal(req, res) {
 
     if (!journal) {
       return res.status(404).json({
-        error: "Journal not found",
+        success: false,
+        message: "Journal not found",
       });
     }
 
     return res.status(200).json({
+      success: true,
       message: "Journal deleted successfully",
       deleted: journal,
     });
   } catch (error) {
     return res.status(500).json({
-      error: "Failed to delete journal",
+      success: false,
+      message: "Unable to delete journal",
+      error: error.message,
     });
   }
 }
+
 module.exports = {
   getAllJournals,
   getJournalById,
