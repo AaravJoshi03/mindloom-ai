@@ -14,11 +14,15 @@ mongoose
     console.log("MongoDB Error:", error);
   });
 
-const journalRoutes = require("./routes/journalRoutes");
-
 app.use(express.json());
 
+// Journal routes
+const journalRoutes = require("./routes/journalRoutes");
 app.use("/api/journals", journalRoutes);
+
+// Auth routes
+const authRoutes = require("./routes/authRoutes");
+app.use("/api/auth", authRoutes);
 
 // Backend check
 app.get("/", (req, res) => {
