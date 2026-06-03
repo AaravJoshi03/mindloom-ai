@@ -2,7 +2,9 @@ const Journal = require("../models/Journal");
 
 async function getAllJournals(req, res) {
   try {
-    const journals = await Journal.find();
+    const journals = await Journal.find({
+      user: req.user._id,
+    }).populate("user", "name email");
 
     return res.status(200).json({
       success: true,
@@ -22,7 +24,10 @@ async function getJournalById(req, res) {
   try {
     const id = req.params.id;
 
-    const journal = await Journal.findById(id);
+    const journal = await Journal.findOne({
+      _id: id,
+      user: req.user._id,
+    }).populate("user", "name email");
 
     if (!journal) {
       return res.status(404).json({
@@ -52,7 +57,8 @@ async function createJournal(req, res) {
       title,
       mood,
       content,
-    });
+      user: req.user._id,
+    }).populate("user", "name email");
 
     return res.status(201).json({
       success: true,
@@ -71,10 +77,17 @@ async function updateJournal(req, res) {
   try {
     const id = req.params.id;
 
-    const journal = await Journal.findByIdAndUpdate(id, req.body, {
-      new: true,
-      runValidators: true,
-    });
+    const journal = await Journal.findOneAndUpdate(
+      {
+        _id: id,
+        user: req.user._id,
+      },
+      req.body,
+      {
+        new: true,
+        runValidators: true,
+      }
+    ).populate("user", "name email");
 
     if (!journal) {
       return res.status(404).json({
@@ -101,7 +114,10 @@ async function deleteJournal(req, res) {
   try {
     const id = req.params.id;
 
-    const journal = await Journal.findByIdAndDelete(id);
+    const journal = await Journal.findOneAndDelete({
+      _id: id,
+      user: req.user._id,
+    });
 
     if (!journal) {
       return res.status(404).json({

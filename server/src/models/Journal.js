@@ -33,6 +33,11 @@ const journalSchema = new mongoose.Schema(
       minlength: [10, "Content must be at least 10 characters"],
       maxlength: [5000, "Content cannot exceed 5000 characters"],
     },
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
   },
   {
     timestamps: true,
