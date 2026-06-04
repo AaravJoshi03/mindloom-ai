@@ -1,4 +1,5 @@
 const Journal = require("../models/Journal");
+const { analyzeJournal } = require("../services/geminiService");
 
 async function getAllJournals(req, res) {
   try {
@@ -52,13 +53,17 @@ async function getJournalById(req, res) {
 async function createJournal(req, res) {
   try {
     const { title, mood, content } = req.body;
+    const analysis = await analyzeJournal(title, content);
 
     const newJournal = await Journal.create({
       title,
       mood,
       content,
       user: req.user._id,
-    }).populate("user", "name email");
+
+      aiStatus: "completed",
+      aiAnalysis: analysis,
+    });
 
     return res.status(201).json({
       success: true,

@@ -38,6 +38,46 @@ const journalSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    aiStatus: {
+      type: String,
+      enum: ["pending", "completed", "failed"],
+      default: "completed",
+    },
+
+    aiAnalysis: {
+      detectedMood: {
+        type: String,
+        enum: [
+          "Happy",
+          "Sad",
+          "Excited",
+          "Angry",
+          "Anxious",
+          "Calm",
+          "Tired",
+          "Neutral",
+          "Stressed",
+          "Motivated",
+          "Confused",
+        ],
+      },
+
+      stressLevel: Number,
+
+      sentimentScore: Number,
+
+      summary: String,
+
+      reflection: String,
+
+      positiveObservations: [String],
+
+      areasOfConcern: [String],
+
+      suggestions: [String],
+
+      keywords: [String],
+    },
   },
   {
     timestamps: true,
