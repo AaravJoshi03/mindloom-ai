@@ -6,6 +6,8 @@ const journalController = require("../controllers/journalController");
 
 router.get("/", authMiddleware, journalController.getAllJournals);
 
+router.get("/stats", authMiddleware, journalController.getStats);
+
 router.get("/:id", authMiddleware, journalController.getJournalById);
 
 router.post("/", authMiddleware, journalController.createJournal);

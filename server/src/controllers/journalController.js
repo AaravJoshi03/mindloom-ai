@@ -145,10 +145,77 @@ async function deleteJournal(req, res) {
   }
 }
 
+async function getStats(req, res) {
+  try {
+    const journals = await Journal.find({
+      user: req.user._id,
+    });
+
+    const totalJournals = journals.length;
+
+    let totalStress = 0;
+    let totalSentiment = 0;
+
+    let stressCount = 0;
+    let sentimentCount = 0;
+
+    const moodMap = {};
+
+    for (const journal of journals) {
+      if (journal.aiAnalysis?.stressLevel) {
+        totalStress += journal.aiAnalysis.stressLevel;
+        stressCount++;
+      }
+
+      if (journal.aiAnalysis?.sentimentScore) {
+        totalSentiment += journal.aiAnalysis.sentimentScore;
+        sentimentCount++;
+      }
+
+      if (moodMap[journal.mood]) {
+        moodMap[journal.mood]++;
+      } else {
+        moodMap[journal.mood] = 1;
+      }
+    }
+
+    const averageStress = stressCount > 0 ? totalStress / stressCount : 0;
+
+    const averageSentiment =
+      sentimentCount > 0 ? totalSentiment / sentimentCount : 0;
+
+    let mostCommonUserMood = "";
+    let highestCount = 0;
+
+    for (const mood in moodMap) {
+      if (moodMap[mood] > highestCount) {
+        highestCount = moodMap[mood];
+        mostCommonUserMood = mood;
+      }
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        totalJournals,
+        averageStress,
+        averageSentiment,
+        mostCommonUserMood,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+}
+
 module.exports = {
   getAllJournals,
   getJournalById,
   createJournal,
   updateJournal,
   deleteJournal,
+  getStats,
 };
