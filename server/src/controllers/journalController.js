@@ -160,22 +160,37 @@ async function getStats(req, res) {
     let sentimentCount = 0;
 
     const moodMap = {};
+    const aiMoodMap = {};
 
     for (const journal of journals) {
+      // Stress
       if (journal.aiAnalysis?.stressLevel) {
         totalStress += journal.aiAnalysis.stressLevel;
         stressCount++;
       }
 
+      // Sentiment
       if (journal.aiAnalysis?.sentimentScore) {
         totalSentiment += journal.aiAnalysis.sentimentScore;
         sentimentCount++;
       }
 
+      // User Mood Frequency
       if (moodMap[journal.mood]) {
         moodMap[journal.mood]++;
       } else {
         moodMap[journal.mood] = 1;
+      }
+
+      // AI Mood Frequency
+      const aiMood = journal.aiAnalysis?.detectedMood;
+
+      if (aiMood) {
+        if (aiMoodMap[aiMood]) {
+          aiMoodMap[aiMood]++;
+        } else {
+          aiMoodMap[aiMood] = 1;
+        }
       }
     }
 
@@ -194,6 +209,16 @@ async function getStats(req, res) {
       }
     }
 
+    let mostCommonAIMood = "";
+    let highestAICount = 0;
+
+    for (const mood in aiMoodMap) {
+      if (aiMoodMap[mood] > highestAICount) {
+        highestAICount = aiMoodMap[mood];
+        mostCommonAIMood = mood;
+      }
+    }
+
     return res.status(200).json({
       success: true,
       data: {
@@ -201,6 +226,7 @@ async function getStats(req, res) {
         averageStress,
         averageSentiment,
         mostCommonUserMood,
+        mostCommonAIMood,
       },
     });
   } catch (error) {
