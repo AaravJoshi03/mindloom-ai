@@ -1,14 +1,19 @@
 require("dotenv").config();
 
-const { analyzeJournal } = require("./services/geminiService");
+const { generateWeeklyReflection } = require("./services/geminiService");
 
 async function test() {
-  const result = await analyzeJournal(
-    "Placement Stress",
-    "I am worried about interviews and my future.",
-  );
+  const combinedContent = `
+I am worried about placements and interviews.
 
-  console.log(result);
+Today I felt much better after solving DSA problems.
+
+I still compare myself with others and sometimes feel behind.
+`;
+
+  const reflection = await generateWeeklyReflection(combinedContent);
+
+  console.log(reflection);
 }
 
 test();

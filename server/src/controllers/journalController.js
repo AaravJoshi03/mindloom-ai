@@ -1,5 +1,8 @@
 const Journal = require("../models/Journal");
-const { analyzeJournal } = require("../services/geminiService");
+const {
+  analyzeJournal,
+  generateWeeklyReflection,
+} = require("../services/geminiService");
 
 async function getAllJournals(req, res) {
   try {
@@ -198,7 +201,6 @@ async function getStats(req, res) {
       if (journal.mood === journal.aiAnalysis?.detectedMood) {
         alignmentMatches++;
       }
-
     }
 
     const averageStress = stressCount > 0 ? totalStress / stressCount : 0;
@@ -286,12 +288,13 @@ async function searchJournals(req, res) {
 async function getTrends(req, res) {
   try {
     const journals = await Journal.find({
-      user: req.user._id,}).sort({ createdAt: 1 });
+      user: req.user._id,
+    }).sort({ createdAt: 1 });
 
     const stressTrend = [];
     const sentimentTrend = [];
     const moodTrend = [];
-    for(const journal of journals) {
+    for (const journal of journals) {
       stressTrend.push({
         date: journal.createdAt,
         stressLevel: journal.aiAnalysis?.stressLevel || null,
@@ -322,6 +325,29 @@ async function getTrends(req, res) {
     });
   }
 }
+
+async function getWeeklyReflection(req, res) {
+  try {
+    const journals = await Journal.find({
+      user: req.user._id,
+    });
+    let combinedContent = "";
+    for (const journal of journals) {
+      combinedContent += journal.content + "\n\n";
+    }
+    const reflection = await generateWeeklyReflection(combinedContent);
+    return res.status(200).json({
+      success: true,
+      data: reflection,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+}
+
 module.exports = {
   getAllJournals,
   getJournalById,
@@ -330,5 +356,6 @@ module.exports = {
   deleteJournal,
   getStats,
   searchJournals,
-  getTrends
+  getTrends,
+  getWeeklyReflection,
 };

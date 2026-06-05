@@ -12,6 +12,12 @@ router.get("/search", authMiddleware, journalController.searchJournals);
 
 router.get("/trends", authMiddleware, journalController.getTrends);
 
+router.get(
+  "/weekly-reflection",
+  authMiddleware,
+  journalController.getWeeklyReflection,
+);
+
 router.get("/:id", authMiddleware, journalController.getJournalById);
 
 router.post("/", authMiddleware, journalController.createJournal);

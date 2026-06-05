@@ -62,6 +62,49 @@ IMPORTANT:
   }
 }
 
+async function generateWeeklyReflection(combinedContent) {
+  const prompt = `
+You are an AI wellness coach.
+
+Analyze the following journal entries from the past week.
+
+Journal Entries:
+${combinedContent}
+
+Return ONLY valid JSON.
+
+{
+  "overallMood": "",
+  "summary": "",
+  "wins": [],
+  "growthAreas": [],
+  "weeklyAdvice": ""
+}
+
+Rules:
+- overallMood should be one word
+- summary should be 2-3 sentences
+- wins should contain 3 points
+- growthAreas should contain 3 points
+- weeklyAdvice should be practical
+
+IMPORTANT:
+Return raw JSON only.
+Do not use markdown.
+Do not use \`\`\`json.
+Do not add explanations.
+`;
+
+  const response = await ai.models.generateContent({
+    model: "gemini-2.5-flash",
+    contents: prompt,
+  });
+
+  const reflection = JSON.parse(response.text);
+
+  return reflection;
+}
 module.exports = {
   analyzeJournal,
+  generateWeeklyReflection,
 };
