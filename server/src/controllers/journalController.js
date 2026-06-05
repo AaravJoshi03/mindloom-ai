@@ -91,7 +91,7 @@ async function updateJournal(req, res) {
       {
         new: true,
         runValidators: true,
-      }
+      },
     ).populate("user", "name email");
 
     if (!journal) {
@@ -162,6 +162,8 @@ async function getStats(req, res) {
     const moodMap = {};
     const aiMoodMap = {};
 
+    let alignmentMatches = 0;
+
     for (const journal of journals) {
       // Stress
       if (journal.aiAnalysis?.stressLevel) {
@@ -192,12 +194,20 @@ async function getStats(req, res) {
           aiMoodMap[aiMood] = 1;
         }
       }
+
+      if (journal.mood === journal.aiAnalysis?.detectedMood) {
+        alignmentMatches++;
+      }
+
     }
 
     const averageStress = stressCount > 0 ? totalStress / stressCount : 0;
 
     const averageSentiment =
       sentimentCount > 0 ? totalSentiment / sentimentCount : 0;
+
+    const moodAlignmentPercentage =
+      totalJournals > 0 ? (alignmentMatches / totalJournals) * 100 : 0;
 
     let mostCommonUserMood = "";
     let highestCount = 0;
@@ -227,6 +237,7 @@ async function getStats(req, res) {
         averageSentiment,
         mostCommonUserMood,
         mostCommonAIMood,
+        moodAlignmentPercentage,
       },
     });
   } catch (error) {
