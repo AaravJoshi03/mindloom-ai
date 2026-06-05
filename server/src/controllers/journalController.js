@@ -283,6 +283,45 @@ async function searchJournals(req, res) {
   }
 }
 
+async function getTrends(req, res) {
+  try {
+    const journals = await Journal.find({
+      user: req.user._id,}).sort({ createdAt: 1 });
+
+    const stressTrend = [];
+    const sentimentTrend = [];
+    const moodTrend = [];
+    for(const journal of journals) {
+      stressTrend.push({
+        date: journal.createdAt,
+        stressLevel: journal.aiAnalysis?.stressLevel || null,
+      });
+      sentimentTrend.push({
+        date: journal.createdAt,
+        sentimentScore: journal.aiAnalysis?.sentimentScore || null,
+      });
+
+      moodTrend.push({
+        date: journal.createdAt,
+        mood: journal.mood,
+        aiMood: journal.aiAnalysis?.detectedMood || null,
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      data: {
+        stressTrend,
+        sentimentTrend,
+        moodTrend,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+}
 module.exports = {
   getAllJournals,
   getJournalById,
@@ -291,4 +330,5 @@ module.exports = {
   deleteJournal,
   getStats,
   searchJournals,
+  getTrends
 };
