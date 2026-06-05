@@ -248,6 +248,41 @@ async function getStats(req, res) {
   }
 }
 
+async function searchJournals(req, res) {
+  try {
+    const searchTerm = req.query.q;
+
+    const journals = await Journal.find({
+      user: req.user._id,
+      $or: [
+        {
+          title: {
+            $regex: searchTerm,
+            $options: "i",
+          },
+        },
+        {
+          content: {
+            $regex: searchTerm,
+            $options: "i",
+          },
+        },
+      ],
+    });
+
+    return res.status(200).json({
+      success: true,
+      count: journals.length,
+      data: journals,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+}
+
 module.exports = {
   getAllJournals,
   getJournalById,
@@ -255,4 +290,5 @@ module.exports = {
   updateJournal,
   deleteJournal,
   getStats,
+  searchJournals,
 };

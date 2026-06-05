@@ -8,6 +8,8 @@ router.get("/", authMiddleware, journalController.getAllJournals);
 
 router.get("/stats", authMiddleware, journalController.getStats);
 
+router.get("/search", authMiddleware, journalController.searchJournals);
+
 router.get("/:id", authMiddleware, journalController.getJournalById);
 
 router.post("/", authMiddleware, journalController.createJournal);
